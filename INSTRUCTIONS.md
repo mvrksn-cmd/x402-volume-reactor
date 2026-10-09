@@ -73,7 +73,14 @@ Copy `.env.example` to `.env` and fill in:
 - Paid request (signed EIP-3009 auth) must return 200.
 - Settlement latency on Base: ~2 seconds. Gasless for payer.
 
-## 7. Security (do not skip)
+## 7. Grok Bot client check
+
+- Grok Bot is a supported x402 client via Coinbase's remote MCP.
+- Connect a test Grok Bot to Coinbase, set a small data budget, and ask it to call `/v1/infer`.
+- Confirm the bot surfaces the 402 price, the user approves, and the paid request returns 200.
+- Docs: https://docs.cdp.coinbase.com/x402/agentic-accounts/coinbase-for-agents
+
+## 8. Security (do not skip)
 
 - A 2026 study found 31 vulnerabilities across 15 major x402 facilitators (99% of observed transactions).
 - Verify payment signatures locally before trusting facilitator settlement.
