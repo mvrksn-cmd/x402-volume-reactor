@@ -16,25 +16,48 @@ Clean, ordered steps. Do not skip.
 ## 3. Install
 
 ```bash
-pip install x402
+pip install "x402[fastapi]" python-dotenv
 ```
 
-## 4. Middleware (one line)
+## 4. Middleware (real v2 SDK)
 
-In `main.py`, after creating the FastAPI app:
+In `main.py`:
 
 ```python
-from x402.middleware.fastapi import paymentMiddleware
+from x402.http import FacilitatorConfig, HTTPFacilitatorClient, PaymentOption
+from x402.http.middleware.fastapi import PaymentMiddlewareASGI
+from x402.http.types import RouteConfig
+from x402.mechanisms.evm.exact import ExactEvmServerScheme
+from x402.server import x402ResourceServer
 
-app.add_middleware(
-    paymentMiddleware,
-    pay_to=os.environ["PAY_TO"],
-    price=os.environ.get("PRICE", "0.01"),
-    network="base",
-    asset="USDC",
-    facilitator_url=os.environ["FACILITATOR_URL"],
-)
+facilitator = HTTPFacilitatorClient(FacilitatorConfig(url=os.environ["FACILITATOR_URL"]))
+server = x402ResourceServer(facilitator)
+server.register("eip155:8453", ExactEvmServerScheme())  # Base mainnet
+
+routes = {
+    "POST /v1/infer": RouteConfig(
+        accepts=[
+            PaymentOption(
+                scheme="exact",
+                pay_to=os.environ["PAY_TO"],
+                price=os.environ.get("PRICE", "0.01"),
+                network="eip155:8453",
+            ),
+        ],
+        mime_type="application/json",
+        description="Volume reactor inference, per-call USDC billing",
+    ),
+}
+
+app.add_middleware(PaymentMiddlewareASGI, routes=routes, server=server)
 ```
+
+Key v2 details:
+
+- Middleware class: `PaymentMiddlewareASGI` (not the old `paymentMiddleware`)
+- Network format: CAIP-2 (`eip155:8453` for Base mainnet)
+- Price: string like `"$0.01"` (defaults to USDC) or explicit `AssetAmount`
+- Register the EVM exact scheme before adding middleware
 
 ## 5. Env
 
