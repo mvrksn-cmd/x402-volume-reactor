@@ -26,8 +26,8 @@ Full step-by-step instructions: **[INSTRUCTIONS.md](INSTRUCTIONS.md)**
 
 1. Create a fresh Base wallet (pay-to address). Do not reuse your main wallet.
 2. Sign up for the Coinbase CDP facilitator (free tier: 1,000 tx/month).
-3. Install: `pip install x402`
-4. Add one line of middleware to your FastAPI app.
+3. Install: `pip install "x402[fastapi]" python-dotenv`
+4. Middleware is wired in `main.py` using `PaymentMiddlewareASGI` (x402 v2).
 5. Set `PAY_TO`, `FACILITATOR_URL`, and `PRICE` in env.
 
 ## Security notes
@@ -38,7 +38,7 @@ Full step-by-step instructions: **[INSTRUCTIONS.md](INSTRUCTIONS.md)**
 
 ## Status
 
-Scaffold. Middleware code to be added.
+Middleware wired with real v2 SDK imports. Ready for wallet + facilitator credentials.
 
 ## License
 
